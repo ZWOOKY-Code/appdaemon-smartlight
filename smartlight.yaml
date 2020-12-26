@@ -1,0 +1,144 @@
+# """
+# https://community.home-assistant.io/t/app-2-smart-light/129011/6
+# 
+# App to automatically turn lights on/off for a certain time depending on the input of one or multiple motions sensors.
+# 
+# Args:
+#     light_entity - the light/switch that shall be controlled
+#     motion_entities - a list of motion sensors
+#     lux_entity (optional) - the sensor that returns the current illuminance 
+#     lux_limit (optional) - the light will not be turned on if the lux_entity returns a value smaller than the lux_limit
+#     light_timeout (optional) - the time in seconds after which the lights shall be turned off. Each motion event restarts the timer
+#     transition (optional) - the time in seconds to reach final brightness
+#     restart_timer (optional) - yes      - restart in any case!! 
+#                              - motion   - restart only if motion activated light!! - this is the default
+#                              - no       - no !!
+#     brightness_entity (optional) - entity for brightness setting
+#     brightness (optional) - brighntess
+#     countdown_entity (optional) - a timer entity that can be used for the timeout handling. If this entity is set, the light_timeout argument will be ignored, because the entity already has its own timeout
+#     disable_motion_sensor_entities (optional) - switch entities that can enable/disable the automatic light on/off handling
+#     somebody_is_home_entity (optional) - only switch lights when somebody is home    
+# 
+#     Scene Stuff -
+#     scene_on_activate_clear_timer  -  if on clears_timer of lights
+#     scene_timeout -  if scene is activated or called this is the scene timeout only in combination with scene_on_activate_clear_timer
+#     scene_entity  -  if on clears_timer of lights
+#     scene_listen_entities  -  listens for this scenes if activated
+#     scene_restart (optional) - False    - default - timer will not be restarted if scene is allready running and we got motion 
+#                              - True   - restart scene if motion is detected
+# 
+# Changes from stoellchen:
+#     20201225:  
+#     	lux_limit changed from int to float
+#     	motion_entity changed to motion_entities and checking lights to switch on or off
+#     	disable_motion_sensor_entity switched to list  room-disable and global disable
+#     20201226
+#       scene stuff added
+# 
+
+
+
+Wohnzimmer:
+  module: smartlight
+  class: SmartLight
+  somebody_is_home_entity: group.family
+  light_entities: 
+     - light.wand
+     - light.sideboard_rechts
+     - light.sideboard_links
+  scene_on_activate_clear_timer: clear
+  scene_entity: scene.tracey_lights
+  scene_timeout: 3600
+  scene_restart: True
+  scene_listen_entities:
+    - scene.hell
+    - scene.tv_blau
+    - scene.tromso_mit_licht_unten_blau_rot_dunkel
+    - scene.tromso_mit_licht_unten
+    - scene.sideboard_bild_turkis
+    - scene.tracey_lights
+    - scene.scene_wohnzimmer_esszimmer_1
+    - scene.scene_wohnzimmer_esszimmer_2
+  motion_entities: 
+    - binary_sensor.ms1
+    - binary_sensor.ms3
+  lux_entity: sensor.ms1
+  lux_limit: 1000
+  brightness_entity: sensor.template_motion_sensor_light_brightness
+  transition: 10
+  light_timeout: 300
+  restart_timer: 'motion'
+  disable_motion_sensor_entities: 
+    - input_boolean.disable_wohnzimmer_motion
+
+Esszimmer:
+  module: smartlight
+  class: SmartLight
+  somebody_is_home_entity: group.family
+  light_entities: 
+    - light.esszimmer_1
+    - light.kerze
+  motion_entities: 
+    - binary_sensor.ms2
+  lux_entity: sensor.ms2
+  lux_limit: 40
+  light_timeout: 300
+  restart_timer: 'motion'
+  brightness_entity: sensor.template_motion_sensor_light_brightness
+  transition: 11
+  disable_motion_sensor_entities: 
+    - input_boolean.disable_esszimmer_motion
+
+SchlafzimmerLinks:
+  module: smartlight
+  class: SmartLight
+  somebody_is_home_entity: group.family
+  light_entities: 
+    - light.bett_boden_links
+    - light.bett_boden
+  motion_entities: 
+    - binary_sensor.ms8
+  lux_entity: sensor.ms8
+  lux_limit: 5
+  brightness_entity: sensor.template_motion_sensor_light_brightness
+  light_timeout: 120
+  transition: 3
+  restart_timer: 'motion'
+  disable_motion_sensor_entities: 
+    - input_boolean.disable_schlafzimmer_motion
+
+SchlafzimmerRechts:
+  module: smartlight
+  class: SmartLight
+  somebody_is_home_entity: group.family
+  light_entities: 
+    - light.bett_boden
+    - light.bett_boden_links
+  motion_entities: 
+    - binary_sensor.ms5
+  lux_entity: sensor.ms5
+  lux_limit: 10
+  brightness_entity: sensor.template_motion_sensor_light_brightness
+  light_timeout: 30
+  transition: 3
+  restart_timer: 'motion'
+  disable_motion_sensor_entities: 
+    - input_boolean.disable_schlafzimmer_motion
+
+Storage:
+  module: smartlight
+  class: SmartLight
+  somebody_is_home_entity: group.family
+  light_entities: 
+    - switch.smart_plug_2
+  motion_entities: 
+    - binary_sensor.ms6
+  lux_entity: sensor.ms6
+  lux_limit: 60
+  brightness: 100
+  light_timeout: 120
+  transition: 0
+  restart_timer: 'motion'
+  disable_motion_sensor_entities: 
+    - input_boolean.disable_storagezimmer_motion
+
